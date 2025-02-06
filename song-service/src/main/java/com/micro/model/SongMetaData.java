@@ -3,7 +3,6 @@ package com.micro.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "song_meta_data")
 public class SongMetaData {
     @Id
     @Column(nullable = false, unique = true)

@@ -1,12 +1,12 @@
 package com.micro.util;
 
 public class MP3Metadata {
-    private String name;
-    private String artist;
-    private String album;
-    private String year;
-    private String duration;
     private Long id;
+    private final String name;
+    private final String artist;
+    private final String album;
+    private final String year;
+    private final String duration;
 
     public MP3Metadata(String name, String artist, String album, String year, String duration) {
         this.name = name;
@@ -15,31 +15,15 @@ public class MP3Metadata {
         this.year = year;
         this.duration = duration;
     }
-
-    public void setDuration(String duration) {
-        this.duration = duration;
-    }
-
-    public void setYear(String year) {
-        this.year = year;
-    }
-
-    public void setAlbum(String album) {
-        this.album = album;
-    }
-
-    public void setArtist(String artist) {
-        this.artist = artist;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getName() {
         return name;
     }
-
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
     public String getArtist() {
         return artist;
     }
@@ -54,12 +38,5 @@ public class MP3Metadata {
 
     public String getDuration() {
         return duration;
-    }
-
-    public Long getId() {
-        return id;
-    }
-    public void setId(Long id) {
-        this.id = id;
     }
 }

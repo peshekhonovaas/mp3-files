@@ -1,6 +1,7 @@
 package com.micro.controller;
 
-import com.micro.dto.DeleteResourcesResponse;
+import com.micro.dto.CreateMetaDataResponse;
+import com.micro.dto.DeleteMetaDataResponse;
 import com.micro.dto.MetaDataSongDTO;
 import com.micro.service.MetaDataService;
 import com.micro.validation.annotation.IdValid;
@@ -38,7 +39,8 @@ public class MetaDataFileController {
         }
         try {
             Long id = this.metaDataService.saveMetaData(metaDataSongDTO);
-            return ResponseEntity.ok(id);
+            CreateMetaDataResponse response = new CreateMetaDataResponse(id);
+            return ResponseEntity.ok(response);
         } catch (Exception ex) {
             throw new RuntimeException(String.format("An error occurred on the server: %s", ex.getMessage()), ex);
         }
@@ -62,7 +64,7 @@ public class MetaDataFileController {
             List<Long> listIds = Arrays.stream(ids.split(","))
                     .map(Long::parseLong)
                     .collect(Collectors.toList());
-            DeleteResourcesResponse response = new DeleteResourcesResponse(
+            DeleteMetaDataResponse response = new DeleteMetaDataResponse(
                     this.metaDataService.deleteSongMetaDataByResourceIds(listIds));
             return ResponseEntity.ok(response);
         } catch (Exception ex) {

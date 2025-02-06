@@ -87,7 +87,7 @@ public class MinioFileStorage {
         }
 
         if (!errorBuilder.isEmpty()) {
-            throw new RuntimeException("Failed to delete some objects: " + errorBuilder.toString());
+            throw new RuntimeException("Failed to delete some objects: " + errorBuilder);
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.micro.service;
 
+import com.micro.dto.FileUploadResponse;
 import com.micro.util.MP3Metadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,8 +24,8 @@ public class MetaDataServiceClientImpl implements MetaDataServiceClient {
         this.songServiceUrl = songServiceUrl;
     }
 
-    public Long createSongMetadata(MP3Metadata metadata) {
-        return restTemplate.postForObject(songServiceUrl, metadata, Long.class);
+    public void createSongMetadata(MP3Metadata metadata) {
+        restTemplate.postForEntity(songServiceUrl, metadata, FileUploadResponse.class);
     }
 
     @Override

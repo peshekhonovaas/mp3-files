@@ -30,7 +30,7 @@ public class GlobalExceptionHandler {
         });
         ValidationErrorResponse errorResponse =
                 new ValidationErrorResponse(ex.getDetailMessageCode(),
-                        errors, HttpStatus.BAD_REQUEST.value());
+                        HttpStatus.BAD_REQUEST.value(), errors);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
