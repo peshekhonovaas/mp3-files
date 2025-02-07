@@ -7,6 +7,6 @@ import java.util.List;
 public interface MetaDataService {
     long saveMetaData(MetaDataSongDTO metaDataSongDTO);
     MetaDataSongDTO getSongMetaDataByResourceId(Long resourceId);
-    List<Long> deleteSongMetaDataByResourceIds(List<Long> resourceIds);
+    List<Long> deleteSongMetaDataByResourceIds(String resourceIds);
     boolean isMetaDataExists(Long resourceId);
 }

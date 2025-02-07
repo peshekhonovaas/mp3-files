@@ -4,10 +4,13 @@ import com.micro.dto.MetaDataSongDTO;
 import com.micro.model.SongMetaData;
 import com.micro.repository.SongMetaDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -21,6 +24,9 @@ public class MetaDataServiceImpl implements MetaDataService{
 
     @Override
     public long saveMetaData(MetaDataSongDTO metaDataSongDTO) {
+        if (this.isMetaDataExists(metaDataSongDTO.getId())) {
+            throw new DuplicateKeyException("Metadata for this ID already exists");
+        }
         SongMetaData songMetaData = new SongMetaData(metaDataSongDTO.getId(), metaDataSongDTO.getName(),
                 metaDataSongDTO.getArtist(), metaDataSongDTO.getAlbum(),
                 metaDataSongDTO.getDuration(), metaDataSongDTO.getYear());
@@ -41,8 +47,11 @@ public class MetaDataServiceImpl implements MetaDataService{
     }
 
     @Override
-    public List<Long> deleteSongMetaDataByResourceIds(List<Long> resourceIds) {
-        List<Long> songMetaDataIds = StreamSupport.stream(this.songMetaDataRepository.findAllById(resourceIds).spliterator(),
+    public List<Long> deleteSongMetaDataByResourceIds(String resourceIds) {
+        List<Long> listIds = Arrays.stream(resourceIds.split(","))
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+        List<Long> songMetaDataIds = StreamSupport.stream(this.songMetaDataRepository.findAllById(listIds).spliterator(),
                 false).map(SongMetaData::getId).toList();
         if (!songMetaDataIds.isEmpty())
             this.songMetaDataRepository.deleteAllById(songMetaDataIds);

@@ -1,12 +1,16 @@
 package com.micro.util;
 
+import com.micro.exception.MetadataParsingException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.mp3.Mp3Parser;
 import org.apache.tika.sax.BodyContentHandler;
+import org.xml.sax.SAXException;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -17,7 +21,7 @@ public class MP3MetaParser {
     private final static Integer FIRST_YEAR = 1900;
     private final static Integer LAST_YEAR = 2099;
 
-    public MP3Metadata parseMetadata(byte[] content) throws Exception {
+    public MP3Metadata parseMetadata(byte[] content){
         try (InputStream input = new ByteArrayInputStream(content)) {
             BodyContentHandler handler = new BodyContentHandler();
             Metadata metadata = new Metadata();
@@ -36,7 +40,9 @@ public class MP3MetaParser {
                     && this.isValidYear(year) && StringUtils.isNoneEmpty(duration)) {
                 return new MP3Metadata(name, artist, album, year, duration);
             }
-            throw new IllegalArgumentException("Invalid metadata values");
+            throw new IllegalArgumentException("Invalid metadata values in the mp3 file");
+        } catch (IOException | TikaException | SAXException ex) {
+            throw new MetadataParsingException("Failed to parse content", ex);
         }
     }
 

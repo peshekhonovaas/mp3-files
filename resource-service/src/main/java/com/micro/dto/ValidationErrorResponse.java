@@ -1,4 +1,4 @@
-package com.micro.exception;
+package com.micro.dto;
 
 import java.util.Map;
 
