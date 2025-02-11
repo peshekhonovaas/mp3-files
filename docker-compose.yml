@@ -1,22 +1,48 @@
 services:
-  dbResource:
-    image: postgres
+  resource-service:
+    build:
+      context: ./resource-service
+    ports:
+      - "9090:9090"
     environment:
-      POSTGRES_DB: mp3db
-      POSTGRES_USER: mp3
-      POSTGRES_PASSWORD: mp3
+      SPRING_DATASOURCE_URL: ${DB_RESOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${DB_RESOURCE_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_RESOURCE_PASS}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+
+  resource-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${DB_RESOURCE_NAME}
+      POSTGRES_USER: ${DB_RESOURCE_USER}
+      POSTGRES_PASSWORD: ${DB_RESOURCE_PASS}
     volumes:
+      - ./init-scripts/resource-db:/docker-entrypoint-initdb.d
       - data-resource:/var/lib/postgresql/data
     ports:
       - "5433:5432"
 
-  dbMeta:
-    image: postgres
+  song-service:
+    build:
+      context: ./song-service
+    ports:
+      - "9091:9091"
     environment:
-      POSTGRES_DB: mp3Metadb
-      POSTGRES_USER: mp3meta
-      POSTGRES_PASSWORD: mp3meta
+      SPRING_DATASOURCE_URL: ${DB_SONG_URL}
+      SPRING_DATASOURCE_USERNAME: ${DB_SONG_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_SONG_PASS}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+
+  song-db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${DB_SONG_NAME}
+      POSTGRES_USER: ${DB_SONG_USER}
+      POSTGRES_PASSWORD: ${DB_SONG_PASS}
     volumes:
+      - ./init-scripts/song-db:/docker-entrypoint-initdb.d
       - data-meta:/var/lib/postgresql/data
     ports:
       - "5432:5432"
@@ -29,8 +55,8 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: miniomp3
-      MINIO_ROOT_PASSWORD: miniomp3
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     command: server /data --console-address ":9001"
 
 volumes:

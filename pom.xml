@@ -13,18 +13,4 @@
         <module>resource-service</module>
         <module>song-service</module>
     </modules>
-
-    <properties>
-        <spring.version>3.4.2</spring.version>
-    </properties>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring.version}</version>
-            </plugin>
-        </plugins>
-    </build>
 </project>
