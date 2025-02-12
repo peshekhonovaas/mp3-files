@@ -1,5 +1,6 @@
 services:
   resource-service:
+    platform: linux/amd64
     build:
       context: ./resource-service
     ports:
@@ -13,7 +14,7 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
 
   resource-db:
-    image: postgres:17-alpine
+    image: postgres:17-alpine3.21
     environment:
       POSTGRES_DB: ${DB_RESOURCE_NAME}
       POSTGRES_USER: ${DB_RESOURCE_USER}
@@ -25,6 +26,7 @@ services:
       - "5433:5432"
 
   song-service:
+    platform: linux/amd64
     build:
       context: ./song-service
     ports:
@@ -36,7 +38,7 @@ services:
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
 
   song-db:
-    image: postgres:17-alpine
+    image: postgres:17-alpine3.21
     environment:
       POSTGRES_DB: ${DB_SONG_NAME}
       POSTGRES_USER: ${DB_SONG_USER}
