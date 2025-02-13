@@ -14,5 +14,4 @@ FROM eclipse-temurin:17-jre-alpine-3.21
 WORKDIR /app
 
 COPY --from=build /app/target/*.jar app.jar
-ENV SPRING_PROFILES_ACTIVE=prod
 CMD ["java", "-jar", "app.jar"]

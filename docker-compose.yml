@@ -10,8 +10,10 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DB_RESOURCE_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_RESOURCE_PASS}
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      SONG_SERVICE_URL: ${SONG_SERVICE_URL}
 
   resource-db:
     image: postgres:17-alpine3.21
@@ -21,7 +23,6 @@ services:
       POSTGRES_PASSWORD: ${DB_RESOURCE_PASS}
     volumes:
       - ./init-scripts/resource-db:/docker-entrypoint-initdb.d
-      - data-resource:/var/lib/postgresql/data
     ports:
       - "5433:5432"
 
@@ -45,23 +46,15 @@ services:
       POSTGRES_PASSWORD: ${DB_SONG_PASS}
     volumes:
       - ./init-scripts/song-db:/docker-entrypoint-initdb.d
-      - data-meta:/var/lib/postgresql/data
     ports:
       - "5432:5432"
 
   minio:
     image: minio/minio
-    volumes:
-      - data-minio:/data
     ports:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
     command: server /data --console-address ":9001"
-
-volumes:
-  data-resource:
-  data-meta:
-  data-minio:
