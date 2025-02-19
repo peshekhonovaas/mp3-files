@@ -1,19 +1,51 @@
 services:
+  eureka-server:
+    platform: linux/amd64
+    build:
+      context: ..
+      dockerfile: mp3-files/eureka-server/Dockerfile
+    environment:
+      EUREKA_CLIENT_REGISTER_WITH_EUREKA: ${EUREKA_CLIENT_REGISTER_WITH_EUREKA}
+      EUREKA_CLIENT_FETCH_REGISTRY: ${EUREKA_CLIENT_FETCH_REGISTRY}
+      LOGGING_LEVEL_COM_NETFLIX_EUREKA: ${LOGGING_LEVEL_COM_NETFLIX_EUREKA}
+      LOGGING_LEVEL_COM_NETFLIX_DISCOVERY: ${LOGGING_LEVEL_COM_NETFLIX_DISCOVERY}
+    ports:
+      - "8761:8761"
+    restart: on-failure
+
+  cloud-gateway:
+    platform: linux/amd64
+    build:
+      context: ..
+      dockerfile: mp3-files/cloud-gateway/Dockerfile
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+      GATEWAY_ROUTE_RESOURCE_SERVICE_PATH: ${GATEWAY_ROUTE_RESOURCE_SERVICE_PATH}
+      GATEWAY_ROUTE_RESOURCE_SERVICE_URI: ${GATEWAY_ROUTE_RESOURCE_SERVICE_URI}
+      GATEWAY_ROUTE_SONG_SERVICE_PATH: ${GATEWAY_ROUTE_SONG_SERVICE_PATH}
+      GATEWAY_ROUTE_SONG_SERVICE_URI: ${GATEWAY_ROUTE_SONG_SERVICE_URI}
+      LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_CLOUD_GATEWAY: DEBUG
+      LOGGING_LEVEL_REACTOR_NETTY_HTTP_CLIENT: DEBUG
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+
   resource-service:
     platform: linux/amd64
     build:
-      context: ./resource-service
-    ports:
-      - "9090:9090"
+      context: ..
+      dockerfile: mp3-files/resource-service/Dockerfile
     environment:
       SPRING_DATASOURCE_URL: ${DB_RESOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${DB_RESOURCE_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_RESOURCE_PASS}
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME}
       MINIO_ENDPOINT: ${MINIO_ENDPOINT}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
       SONG_SERVICE_URL: ${SONG_SERVICE_URL}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
 
   resource-db:
     image: postgres:17-alpine3.21
@@ -29,14 +61,16 @@ services:
   song-service:
     platform: linux/amd64
     build:
-      context: ./song-service
-    ports:
-      - "9091:9091"
+      context: ..
+      dockerfile: mp3-files/song-service/Dockerfile
     environment:
       SPRING_DATASOURCE_URL: ${DB_SONG_URL}
       SPRING_DATASOURCE_USERNAME: ${DB_SONG_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_SONG_PASS}
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+    deploy:
+      replicas: 2
 
   song-db:
     image: postgres:17-alpine3.21

@@ -1,17 +1,16 @@
 FROM maven:3.9.9-eclipse-temurin-17-alpine AS build
 WORKDIR /app
 
-COPY pom.xml .
+COPY mp3-files/pom.xml /app/
+COPY mp3-files/song-service/ /app/song-service/
 
-RUN mvn dependency:go-offline
+RUN mvn -f /app/song-service/pom.xml dependency:go-offline
 
-COPY src src
+WORKDIR /app/song-service
+RUN mvn clean package -DskipTests
 
-RUN mvn clean package -Dmaven.test.skip=true
-
-FROM eclipse-temurin:17-jre-alpine-3.21
-
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/song-service/target/*.jar app.jar
 CMD ["java", "-jar", "app.jar"]
