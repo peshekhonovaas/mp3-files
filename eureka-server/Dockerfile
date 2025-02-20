@@ -1,8 +1,8 @@
 FROM maven:3.9.9-eclipse-temurin-17-alpine AS build
 WORKDIR /app
 
-COPY mp3-files/pom.xml /app/
-COPY mp3-files/eureka-server/ /app/eureka-server/
+COPY ../pom.xml /app/
+COPY ../eureka-server/ /app/eureka-server/
 
 RUN mvn -f /app/eureka-server/pom.xml dependency:go-offline
 

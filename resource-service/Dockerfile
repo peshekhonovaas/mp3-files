@@ -1,8 +1,8 @@
 FROM maven:3.9.9-eclipse-temurin-17-alpine AS build
 WORKDIR /app
 
-COPY mp3-files/pom.xml /app/
-COPY mp3-files/resource-service/ /app/resource-service/
+COPY ../pom.xml /app/
+COPY ../resource-service/ /app/resource-service/
 
 RUN mvn -f /app/resource-service/pom.xml dependency:go-offline
 

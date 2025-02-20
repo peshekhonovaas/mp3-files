@@ -2,8 +2,8 @@ services:
   eureka-server:
     platform: linux/amd64
     build:
-      context: ..
-      dockerfile: mp3-files/eureka-server/Dockerfile
+      context: .
+      dockerfile: eureka-server/Dockerfile
     environment:
       EUREKA_CLIENT_REGISTER_WITH_EUREKA: ${EUREKA_CLIENT_REGISTER_WITH_EUREKA}
       EUREKA_CLIENT_FETCH_REGISTRY: ${EUREKA_CLIENT_FETCH_REGISTRY}
@@ -16,8 +16,8 @@ services:
   cloud-gateway:
     platform: linux/amd64
     build:
-      context: ..
-      dockerfile: mp3-files/cloud-gateway/Dockerfile
+      context: .
+      dockerfile: cloud-gateway/Dockerfile
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
       GATEWAY_ROUTE_RESOURCE_SERVICE_PATH: ${GATEWAY_ROUTE_RESOURCE_SERVICE_PATH}
@@ -34,8 +34,8 @@ services:
   resource-service:
     platform: linux/amd64
     build:
-      context: ..
-      dockerfile: mp3-files/resource-service/Dockerfile
+      context: .
+      dockerfile: resource-service/Dockerfile
     environment:
       SPRING_DATASOURCE_URL: ${DB_RESOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${DB_RESOURCE_USER}
@@ -61,8 +61,8 @@ services:
   song-service:
     platform: linux/amd64
     build:
-      context: ..
-      dockerfile: mp3-files/song-service/Dockerfile
+      context: .
+      dockerfile: song-service/Dockerfile
     environment:
       SPRING_DATASOURCE_URL: ${DB_SONG_URL}
       SPRING_DATASOURCE_USERNAME: ${DB_SONG_USER}
