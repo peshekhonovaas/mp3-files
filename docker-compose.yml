@@ -31,6 +31,54 @@ services:
     depends_on:
       - eureka-server
 
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    command: server /data --console-address ":9001"
+
+  song-db:
+    image: postgres:17-alpine3.21
+    environment:
+      POSTGRES_DB: ${DB_SONG_NAME}
+      POSTGRES_USER: ${DB_SONG_USER}
+      POSTGRES_PASSWORD: ${DB_SONG_PASS}
+    volumes:
+      - ./init-scripts/song-db:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+
+  song-service:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: song-service/Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: ${DB_SONG_URL}
+      SPRING_DATASOURCE_USERNAME: ${DB_SONG_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_SONG_PASS}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+    deploy:
+      replicas: 2
+    depends_on:
+      - song-db
+
+  resource-db:
+    image: postgres:17-alpine3.21
+    environment:
+      POSTGRES_DB: ${DB_RESOURCE_NAME}
+      POSTGRES_USER: ${DB_RESOURCE_USER}
+      POSTGRES_PASSWORD: ${DB_RESOURCE_PASS}
+    volumes:
+      - ./init-scripts/resource-db:/docker-entrypoint-initdb.d
+    ports:
+      - "5433:5432"
+
   resource-service:
     platform: linux/amd64
     build:
@@ -46,49 +94,6 @@ services:
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
       SONG_SERVICE_URL: ${SONG_SERVICE_URL}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
-
-  resource-db:
-    image: postgres:17-alpine3.21
-    environment:
-      POSTGRES_DB: ${DB_RESOURCE_NAME}
-      POSTGRES_USER: ${DB_RESOURCE_USER}
-      POSTGRES_PASSWORD: ${DB_RESOURCE_PASS}
-    volumes:
-      - ./init-scripts/resource-db:/docker-entrypoint-initdb.d
-    ports:
-      - "5433:5432"
-
-  song-service:
-    platform: linux/amd64
-    build:
-      context: .
-      dockerfile: song-service/Dockerfile
-    environment:
-      SPRING_DATASOURCE_URL: ${DB_SONG_URL}
-      SPRING_DATASOURCE_USERNAME: ${DB_SONG_USER}
-      SPRING_DATASOURCE_PASSWORD: ${DB_SONG_PASS}
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
-    deploy:
-      replicas: 2
-
-  song-db:
-    image: postgres:17-alpine3.21
-    environment:
-      POSTGRES_DB: ${DB_SONG_NAME}
-      POSTGRES_USER: ${DB_SONG_USER}
-      POSTGRES_PASSWORD: ${DB_SONG_PASS}
-    volumes:
-      - ./init-scripts/song-db:/docker-entrypoint-initdb.d
-    ports:
-      - "5432:5432"
-
-  minio:
-    image: minio/minio
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    environment:
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
-    command: server /data --console-address ":9001"
+    depends_on:
+      - resource-db
+      - minio
