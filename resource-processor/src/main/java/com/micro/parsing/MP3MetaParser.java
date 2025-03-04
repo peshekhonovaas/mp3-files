@@ -1,4 +1,4 @@
-package com.micro.util;
+package com.micro.parsing;
 
 import com.micro.exception.MetadataParsingException;
 import org.apache.commons.lang3.StringUtils;

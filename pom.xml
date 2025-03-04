@@ -41,5 +41,6 @@
         <module>song-service</module>
         <module>cloud-gateway</module>
         <module>eureka-server</module>
+        <module>resource-processor</module>
     </modules>
 </project>

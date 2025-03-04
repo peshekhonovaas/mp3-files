@@ -17,11 +17,18 @@ public class CloudGatewayApplication {
 	@Value("${gateway.route.resource-service.uri}")
 	private String resourceServiceUri;
 
+	@Value("${gateway.route.resource-processor.path}")
+	private String resourceProcessorPath;
+
+	@Value("${gateway.route.resource-processor.uri}")
+	private String resourceProcessorUri;
+
 	@Value("${gateway.route.song-service.path}")
 	private String songServicePath;
 
 	@Value("${gateway.route.song-service.uri}")
 	private String songServiceUri;
+
 	public static void main(String[] args) {
 		SpringApplication.run(CloudGatewayApplication.class, args);
 	}
