@@ -1,6 +1,7 @@
 package com.micro.service;
 
 import com.micro.model.AudioFileDetails;
+import com.micro.producer.ProducerService;
 import com.micro.repository.AudioFileRepository;
 import com.micro.uploader.MinioFileStorage;
 import jakarta.transaction.Transactional;
@@ -16,12 +17,15 @@ import java.util.stream.StreamSupport;
 public class FileStorageServiceImpl implements FileStorageService {
     private final AudioFileRepository audioFileRepository;
     private final MinioFileStorage minioFileStorage;
+    private final ProducerService producerService;
 
     @Autowired
     public FileStorageServiceImpl(AudioFileRepository audioFileRepository,
-                                  MinioFileStorage minioFileStorage) {
+                                  MinioFileStorage minioFileStorage,
+                                  ProducerService producerService) {
         this.audioFileRepository = audioFileRepository;
         this.minioFileStorage = minioFileStorage;
+        this.producerService = producerService;
     }
 
     @Override
@@ -29,7 +33,9 @@ public class FileStorageServiceImpl implements FileStorageService {
     public Long uploadFile(String contentType, byte[] content) {
         String random  =  String.valueOf(ThreadLocalRandom.current().nextInt());
         this.minioFileStorage.uploadFile(random, contentType, content);
-        return this.audioFileRepository.save(new AudioFileDetails(random)).getId();
+        Long resourceId = this.audioFileRepository.save(new AudioFileDetails(random)).getId();
+        this.producerService.sendResourceId(String.valueOf(resourceId));
+        return resourceId;
     }
 
     @Override

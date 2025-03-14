@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 @Entity
 public class SongMetaData {
     @Id
-    @Column(nullable = false, unique = true)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 100)
@@ -26,8 +26,7 @@ public class SongMetaData {
     public SongMetaData() {
     }
 
-    public SongMetaData(Long id, String name, String artist, String album, String duration, String year) {
-        this.id = id;
+    public SongMetaData(String name, String artist, String album, String duration, String year) {
         this.name = name;
         this.artist = artist;
         this.album = album;

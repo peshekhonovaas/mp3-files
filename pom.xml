@@ -42,5 +42,6 @@
         <module>cloud-gateway</module>
         <module>eureka-server</module>
         <module>resource-processor</module>
+        <module>message-broker</module>
     </modules>
 </project>

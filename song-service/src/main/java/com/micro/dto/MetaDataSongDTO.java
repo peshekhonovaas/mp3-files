@@ -5,7 +5,6 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 public class MetaDataSongDTO {
-    @NotNull(message = "Id is required")
     private Long id;
 
     @NotNull(message = "Name is required")

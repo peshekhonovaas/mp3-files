@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -24,10 +25,11 @@ public class MetaDataServiceImpl implements MetaDataService{
 
     @Override
     public long saveMetaData(MetaDataSongDTO metaDataSongDTO) {
-        if (this.isMetaDataExists(metaDataSongDTO.getId())) {
+        if (Objects.nonNull(metaDataSongDTO.getId()) &&
+                this.isMetaDataExists(metaDataSongDTO.getId())) {
             throw new DuplicateKeyException("Metadata for this ID already exists");
         }
-        SongMetaData songMetaData = new SongMetaData(metaDataSongDTO.getId(), metaDataSongDTO.getName(),
+        SongMetaData songMetaData = new SongMetaData(metaDataSongDTO.getName(),
                 metaDataSongDTO.getArtist(), metaDataSongDTO.getAlbum(),
                 metaDataSongDTO.getDuration(), metaDataSongDTO.getYear());
         return this.songMetaDataRepository.save(songMetaData).getId();

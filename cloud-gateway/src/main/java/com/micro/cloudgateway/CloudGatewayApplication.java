@@ -17,12 +17,6 @@ public class CloudGatewayApplication {
 	@Value("${gateway.route.resource-service.uri}")
 	private String resourceServiceUri;
 
-	@Value("${gateway.route.resource-processor.path}")
-	private String resourceProcessorPath;
-
-	@Value("${gateway.route.resource-processor.uri}")
-	private String resourceProcessorUri;
-
 	@Value("${gateway.route.song-service.path}")
 	private String songServicePath;
 
@@ -35,7 +29,6 @@ public class CloudGatewayApplication {
 
 	@Bean
 	public RouteLocator songLocator(RouteLocatorBuilder builder) {
-		System.out.println("Configuring routes for the gateway...");
 		return builder.routes()
 				.route(r -> r.path(this.resourceServicePath).uri(this.resourceServiceUri))
 				.route(r -> r.path(this.songServicePath).uri(this.songServiceUri))
