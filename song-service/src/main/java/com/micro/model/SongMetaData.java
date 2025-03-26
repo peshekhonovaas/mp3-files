@@ -20,7 +20,7 @@ public class SongMetaData {
     @Column(nullable = false)
     private String duration;
 
-    @Column(nullable = false)
+    @Column(name = "\"year\"", nullable = false)
     private String year;
 
     public SongMetaData() {

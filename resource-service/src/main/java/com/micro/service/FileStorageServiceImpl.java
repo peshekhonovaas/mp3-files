@@ -48,6 +48,7 @@ public class FileStorageServiceImpl implements FileStorageService {
     @Override
     @Transactional
     public List<Long> deleteFilesAndReturnDeletedIds(String ids) {
+        if (ids.isBlank()) return Collections.emptyList();
         List<Long> listIds = Arrays.stream(ids.split(","))
                 .map(Long::parseLong)
                 .collect(Collectors.toList());

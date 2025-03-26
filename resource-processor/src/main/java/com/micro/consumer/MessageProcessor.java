@@ -49,7 +49,7 @@ public class MessageProcessor {
     }
 
     @Recover
-    public void recover(MessageFailedException exception, Message<Map<String, Object>> message) {
+    public void recover(MessageFailedException exception, Message<Map<String, String>> message) {
         throw new MessageFailedException(String.format("Failed to process message resource Id %s after retries",
                 message.getPayload().get("resourceId")), exception);
     }

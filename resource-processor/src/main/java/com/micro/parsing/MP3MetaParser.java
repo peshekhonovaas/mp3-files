@@ -22,12 +22,21 @@ public class MP3MetaParser {
     private final static Integer FIRST_YEAR = 1900;
     private final static Integer LAST_YEAR = 2099;
 
+    private final Mp3Parser mp3Parser;
+
+    public MP3MetaParser(Mp3Parser parser) {
+        this.mp3Parser = parser;
+    }
+
+    public MP3MetaParser() {
+        this.mp3Parser = new Mp3Parser();
+    }
+
     public MP3MetadataDTO parseMetadata(byte[] content){
         try (InputStream input = new ByteArrayInputStream(content)) {
             BodyContentHandler handler = new BodyContentHandler();
             Metadata metadata = new Metadata();
             ParseContext parseContext = new ParseContext();
-            Mp3Parser mp3Parser = new Mp3Parser();
 
             mp3Parser.parse(input, handler, metadata, parseContext);
 

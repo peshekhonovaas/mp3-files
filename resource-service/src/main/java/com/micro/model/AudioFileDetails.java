@@ -14,6 +14,7 @@ public class AudioFileDetails {
     public AudioFileDetails(String name) {
         this.name = name;
     }
+
     public AudioFileDetails() {
     }
     public Long getId() {

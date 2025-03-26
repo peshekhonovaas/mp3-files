@@ -15,6 +15,7 @@ public class IdsValidator implements ConstraintValidator<IdsValid, String> {
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (StringUtils.isEmpty(value)) return false;
+        value = value.replaceAll("\\s", "");
         if (!ID_RESTRICTION_PATTERN.matcher(value).matches()) return false;
         String[] ids = value.split(",");
         return Arrays.stream(ids)
