@@ -13,7 +13,7 @@ import org.springframework.web.client.RestTemplate;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(PactConsumerTestExt.class)
-@PactTestFor(providerName = "ResourceService", port = "8080") // Mock Provider setup
+@PactTestFor(providerName = "ResourceService", port = "8080")
 public class ResourceProcessorConsumerContractTest {
 
     @Pact(consumer = "ResourceProcessor", provider = "ResourceService")
@@ -39,19 +39,10 @@ public class ResourceProcessorConsumerContractTest {
         FileData response = restTemplate.getForObject(url, FileData.class);
 
         assertNotNull(response);
-        assertEquals("123", response.getId());
-        assertEquals("mock file data", response.getContent());
+        assertEquals("123", response.id());
+        assertEquals("mock file data", response.content());
     }
 }
 
-class FileData {
-    private String id;
-    private String content;
-
-    public String getId() {
-        return id;
-    }
-    public String getContent() {
-        return content;
-    }
+record FileData(String id, String content) {
 }

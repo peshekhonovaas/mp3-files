@@ -79,18 +79,4 @@ class MP3MetaParserTest {
                 "Expected MetadataParsingException when IOException occurs."
         );
     }
-
-    private static byte[] convertMetadataToByteArray(Metadata metadata) throws Exception {
-        StringBuilder builder = new StringBuilder();
-
-        for (String name : metadata.names()) {
-            if (metadata.get(name) != null) {
-                builder.append(name)
-                        .append("=")
-                        .append(metadata.get(name))
-                        .append("\n");
-            }
-        }
-        return builder.toString().getBytes(StandardCharsets.UTF_8);
-    }
 }

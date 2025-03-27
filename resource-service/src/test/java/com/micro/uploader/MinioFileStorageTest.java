@@ -78,9 +78,7 @@ public class MinioFileStorageTest {
         when(minioClient.bucketExists(Mockito.any())).thenReturn(true);
         doThrow(new RuntimeException("Mocked runtime error caused by Minio")).when(minioClient)
                 .putObject(Mockito.any());
-        assertThrows(RuntimeException.class, () -> {
-            minioFileStorage.uploadFile(fileName, contentType, content);
-        });
+        assertThrows(RuntimeException.class, () -> minioFileStorage.uploadFile(fileName, contentType, content));
     }
 
     @Test
@@ -93,8 +91,6 @@ public class MinioFileStorageTest {
                 .when(minioClient)
                 .putObject(Mockito.any(PutObjectArgs.class));
 
-        assertThrows(RuntimeException.class, () -> {
-            minioFileStorage.uploadFile("file.txt", "text/plain", content);
-        });
+        assertThrows(RuntimeException.class, () -> minioFileStorage.uploadFile("file.txt", "text/plain", content));
     }
 }

@@ -83,7 +83,7 @@ class RabbitMQConfigFetcherTest {
 
         assertEquals("Failed to fetch RabbitMQ configuration", exception.getMessage());
         assertNotNull(exception.getCause());
-        assertTrue(exception.getCause() instanceof RuntimeException);
+        assertInstanceOf(RuntimeException.class, exception.getCause());
 
         verify(restTemplate, times(1)).exchange(
                 eq(RABBIT_MQ_MANAGER_URL),

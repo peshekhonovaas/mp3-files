@@ -1,7 +1,6 @@
 package com.micro.exception;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -11,8 +10,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,7 +38,9 @@ class GlobalExceptionHandlerTest {
                 handler.handleValidationExceptions(exception);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Validation error", response.getBody().errorMessage());
+        ValidationErrorResponse responseBody = response.getBody();
+        assertNotNull(responseBody, "Response body should not be null");
+        assertEquals("Validation error", responseBody.errorMessage());
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.getBody().errorCode());
         assertEquals(expectedErrors, response.getBody().details());
     }
@@ -56,7 +59,9 @@ class GlobalExceptionHandlerTest {
                 handler.handleValidationExceptions(exception);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Validation error", response.getBody().errorMessage());
+        ValidationErrorResponse responseBody = response.getBody();
+        assertNotNull(responseBody, "Response body should not be null");
+        assertEquals("Validation error", responseBody.errorMessage());
         assertEquals(HttpStatus.BAD_REQUEST.value(), response.getBody().errorCode());
         assertEquals(new HashMap<>(), response.getBody().details());
     }
