@@ -14,10 +14,4 @@ public class AppConfig {
     public RestTemplate loadBalancedRestTemplate() {
         return new RestTemplate();
     }
-
-    @Bean
-    @Qualifier("nonLoadBalancedRestTemplate")
-    public RestTemplate nonLoadBalancedRestTemplate() {
-        return new RestTemplate();
-    }
 }

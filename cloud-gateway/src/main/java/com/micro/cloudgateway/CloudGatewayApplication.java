@@ -23,6 +23,18 @@ public class CloudGatewayApplication {
 	@Value("${gateway.route.song-service.uri}")
 	private String songServiceUri;
 
+	@Value("${gateway.route.resource-processor.path}")
+	private String resourceProcessorPath;
+
+	@Value("${gateway.route.resource-processor.uri}")
+	private String resourceProcessorUri;
+
+	@Value("${gateway.route.message-broker.path}")
+	private String messageBrokerPath;
+
+	@Value("${gateway.route.message-broker.uri}")
+	private String messageBrokerUri;
+
 	public static void main(String[] args) {
 		SpringApplication.run(CloudGatewayApplication.class, args);
 	}
@@ -32,7 +44,8 @@ public class CloudGatewayApplication {
 		return builder.routes()
 				.route(r -> r.path(this.resourceServicePath).uri(this.resourceServiceUri))
 				.route(r -> r.path(this.songServicePath).uri(this.songServiceUri))
+				.route(r -> r.path(this.resourceProcessorPath).uri(this.resourceProcessorUri))
+				.route(r -> r.path(this.messageBrokerPath).uri(this.messageBrokerUri))
 				.build();
 	}
-
 }

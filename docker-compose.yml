@@ -12,6 +12,11 @@ services:
     ports:
       - "8761:8761"
     restart: on-failure
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q --spider http://localhost:8761/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   cloud-gateway:
     platform: linux/amd64
@@ -26,12 +31,20 @@ services:
       GATEWAY_ROUTE_SONG_SERVICE_URI: ${GATEWAY_ROUTE_SONG_SERVICE_URI}
       GATEWAY_ROUTE_RESOURCE_PROCESSOR_PATH: ${GATEWAY_ROUTE_RESOURCE_PROCESSOR_PATH}
       GATEWAY_ROUTE_RESOURCE_PROCESSOR_URI: ${GATEWAY_ROUTE_RESOURCE_PROCESSOR_URI}
+      GATEWAY_ROUTE_MESSAGE_BROKER_PATH: ${GATEWAY_ROUTE_MESSAGE_BROKER_PATH}
+      GATEWAY_ROUTE_MESSAGE_BROKER_URI: ${GATEWAY_ROUTE_MESSAGE_BROKER_URI}
       LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_CLOUD_GATEWAY: DEBUG
       LOGGING_LEVEL_REACTOR_NETTY_HTTP_CLIENT: DEBUG
     ports:
       - "8085:8080"
     depends_on:
-      - eureka-server
+      eureka-server:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q --spider http://localhost:8080/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   minio:
     image: minio/minio
@@ -43,6 +56,47 @@ services:
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
     command: server /data --console-address ":9001"
 
+  rabbitmq:
+    platform: linux/amd64
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "rabbitmqctl status || exit 1"
+      ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  message-broker:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: message-broker/Dockerfile
+    environment:
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      RABBITMQ_PORT: ${RABBITMQ_PORT}
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      RABBITMQ_EXCHANGE_NAME: ${RABBITMQ_EXCHANGE_NAME}
+      RABBITMQ_QUEUE_NAME: ${RABBITMQ_QUEUE_NAME}
+      RABBITMQ_ROUTING_KEY: ${RABBITMQ_ROUTING_KEY}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8099/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   song-db:
     image: postgres:17-alpine3.21
     environment:
@@ -53,6 +107,11 @@ services:
       - ./init-scripts/song-db:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_SONG_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   song-service:
     platform: linux/amd64
@@ -63,12 +122,18 @@ services:
       SPRING_DATASOURCE_URL: ${DB_SONG_URL}
       SPRING_DATASOURCE_USERNAME: ${DB_SONG_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_SONG_PASS}
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
     deploy:
       replicas: 1
     depends_on:
-      - song-db
+      song-db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q --spider http://localhost:9091/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   resource-db:
     image: postgres:17-alpine3.21
@@ -80,6 +145,11 @@ services:
       - ./init-scripts/resource-db:/docker-entrypoint-initdb.d
     ports:
       - "5433:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_RESOURCE_USER}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   resource-service:
     platform: linux/amd64
@@ -94,17 +164,42 @@ services:
       MINIO_ENDPOINT: ${MINIO_ENDPOINT}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      RABBITMQ_MANAGER_URL: ${RABBITMQ_MANAGER_URL}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      RABBITMQ_PORT: ${RABBITMQ_PORT}
+      RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
     depends_on:
-      - resource-db
-      - minio
+      resource-db:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q --spider http://localhost:9090/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  rabbitmq:
+  resource-processor:
     platform: linux/amd64
-    image: rabbitmq:management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+    build:
+      context: .
+      dockerfile: resource-processor/Dockerfile
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      RABBITMQ_MANAGER_URL: ${RABBITMQ_MANAGER_URL}
+      RABBITMQ_HOST: ${RABBITMQ_HOST}
+      RABBITMQ_PORT: ${RABBITMQ_PORT}
+      RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE}
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q --spider http://localhost:9092/actuator/health || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+

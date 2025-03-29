@@ -4,6 +4,7 @@ import com.micro.exception.ConfigurationFailedException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,7 +22,7 @@ public class RabbitMQConfigFetcher {
     private volatile Map<String, String> cachedConfig = Collections.emptyMap();
 
     @Autowired
-    public RabbitMQConfigFetcher(RestTemplate restTemplate,
+    public RabbitMQConfigFetcher(@LoadBalanced RestTemplate restTemplate,
                                  @Value("${rabbitmq.manager.url}") String rabbitMQManagerUrl) {
         this.restTemplate = restTemplate;
         this.rabbitMQManagerUrl = rabbitMQManagerUrl;
@@ -31,7 +32,7 @@ public class RabbitMQConfigFetcher {
     public void fetchAndCacheConfig() {
         try {
             Map<String, String> fetchedConfig = this.restTemplate.exchange(
-                    this.rabbitMQManagerUrl, HttpMethod.GET, null,
+                    this.rabbitMQManagerUrl + "/rabbitmq/config", HttpMethod.GET, null,
                     new ParameterizedTypeReference<Map<String, String>>() {}).getBody();
 
             if (ObjectUtils.isNotEmpty(fetchedConfig)) {
