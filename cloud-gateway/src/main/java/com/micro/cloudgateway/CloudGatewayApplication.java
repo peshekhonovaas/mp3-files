@@ -14,11 +14,17 @@ public class CloudGatewayApplication {
 	@Value("${gateway.route.resource-service.path}")
 	private String resourceServicePath;
 
+	@Value("${gateway.forward.resource-service.path}")
+	private String forwardResourceServicePath;
+
 	@Value("${gateway.route.resource-service.uri}")
 	private String resourceServiceUri;
 
 	@Value("${gateway.route.song-service.path}")
 	private String songServicePath;
+
+	@Value("${gateway.forward.song-service.path}")
+	private String forwardSongServicePath;
 
 	@Value("${gateway.route.song-service.uri}")
 	private String songServiceUri;
@@ -42,8 +48,18 @@ public class CloudGatewayApplication {
 	@Bean
 	public RouteLocator songLocator(RouteLocatorBuilder builder) {
 		return builder.routes()
-				.route(r -> r.path(this.resourceServicePath).uri(this.resourceServiceUri))
-				.route(r -> r.path(this.songServicePath).uri(this.songServiceUri))
+				.route(r -> r.path(this.resourceServicePath).filters(f ->
+								f.circuitBreaker(cb ->
+										cb.setName("resourceServiceCircuitBreaker")
+												.setFallbackUri(this.forwardResourceServicePath)
+												.setRouteId("resource-route")))
+						.uri(this.resourceServiceUri))
+				.route(r -> r.path(this.songServicePath).filters(f ->
+								f.circuitBreaker(cb ->
+										cb.setName("songServiceCircuitBreaker")
+												.setFallbackUri(this.forwardSongServicePath)
+												.setRouteId("song-route")))
+						.uri(this.songServiceUri))
 				.route(r -> r.path(this.resourceProcessorPath).uri(this.resourceProcessorUri))
 				.route(r -> r.path(this.messageBrokerPath).uri(this.messageBrokerUri))
 				.build();
